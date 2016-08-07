@@ -38,11 +38,11 @@ export function init (cfg) {
  * Prepare a Weex instance and return the environment.
  *
  * @param  {string} id
- * @param  {object} config
+ * @param  {object} options
  * @param  {object} data
  * @return {object}
  */
-export function prepareInstance (id, config, data) {
+export function prepareInstance (id, options, data) {
   let instance = instanceMap[id]
   options = options || {}
   let result

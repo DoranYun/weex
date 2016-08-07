@@ -61,9 +61,11 @@ global.WXInstanceMap = instanceMap
  * @param  {object} data
  */
 export function prepareInstance (id, type, config, data) {
+  type = type || 'Weex'
   const framework = frameworks[type]
   if (framework && framework.prepareInstance) {
     instanceMap[id] = framework.prepareInstance(id, config, data)
+    instanceMap[id].framework = type
   }
   else {
     instanceMap[id] = {}
@@ -95,6 +97,7 @@ function createInstance (id, code, config, data) {
 }
 
 const methods = {
+  prepareInstance,
   createInstance
 }
 
