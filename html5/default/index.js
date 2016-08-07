@@ -35,6 +35,26 @@ export function init (cfg) {
 }
 
 /**
+ * Prepare a Weex instance and return the environment.
+ *
+ * @param  {string} id
+ * @param  {object} config
+ * @param  {object} data
+ * @return {object}
+ */
+export function prepareInstance (id, config, data) {
+  let instance = instanceMap[id]
+  options = options || {}
+  let result
+  if (!instance) {
+    instance = new App(id, options)
+    instanceMap[id] = instance
+    result = initApp(instance, '', data)
+  }
+  return result || {}
+}
+
+/**
  * Create a Weex instance.
  *
  * @param  {string} id

@@ -50,6 +50,26 @@ function checkVersion (code) {
 
 const instanceMap = {}
 
+global.WXInstanceMap = instanceMap
+
+/**
+ * Prepare env for an new instance instead create it directly. This mode could
+ * avoid running `new Function` during create an instance.
+ * @param  {string} id
+ * @param  {string} type
+ * @param  {object} config
+ * @param  {object} data
+ */
+export function prepareInstance (id, type, config, data) {
+  const framework = frameworks[type]
+  if (framework && framework.prepareInstance) {
+    instanceMap[id] = framework.prepareInstance(id, config, data)
+  }
+  else {
+    instanceMap[id] = {}
+  }
+}
+
 /**
  * Check which framework a certain JS Bundle code based to. And create instance
  * by this framework.
@@ -104,6 +124,9 @@ function genInstance (methodName) {
   methods[methodName] = function (...args) {
     const id = args[0]
     const info = instanceMap[id]
+    if (methodName === 'destroyInstance') {
+      delete instanceMap[id]
+    }
     if (info && frameworks[info.framework]) {
       return frameworks[info.framework][methodName](...args)
     }

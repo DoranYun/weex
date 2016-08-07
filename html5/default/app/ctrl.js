@@ -20,7 +20,9 @@ import {
 } from './bundle'
 
 /**
- * Init an app by run code witgh data
+ * Init an app by run code with data.
+ * In native renderer if the code is empty then we just prepare an instance
+ * env only for run the real code later.
  * @param  {object} app
  * @param  {string} code
  * @param  {object} data
@@ -84,6 +86,27 @@ export function init (app, code, data) {
       },
       clearInterval: (n) => {
         timer.clearInterval(n)
+      }
+    }
+
+    // Special: if the code is empty that means we only need to prepare an
+    // environment. If so we just return a enviorment object.
+    if (!code) {
+      return {
+        define: bundleDefine,
+        require: bundleRequire,
+        document: bundleDocument,
+        bootstrap: bundleBootstrap,
+        register: bundleRegister,
+        render: bundleRender,
+        __weex_define__: bundleDefine,
+        __weex_bootstrap__: bundleBootstrap,
+        __weex_document__: bundleDocument,
+        __weex_require__: bundleRequireModule,
+        setTimeout: timerAPIs.setTimeout,
+        setInterval: timerAPIs.setInterval,
+        clearTimeout: timerAPIs.clearTimeout,
+        clearInterval: timerAPIs.clearInterval
       }
     }
 
