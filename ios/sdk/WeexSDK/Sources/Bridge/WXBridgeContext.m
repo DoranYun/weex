@@ -187,16 +187,24 @@ _Pragma("clang diagnostic pop") \
     NSMutableArray *sendQueue = [NSMutableArray array];
     [self.sendQueue setValue:sendQueue forKey:instance];
     
+    NSString *start = @"(function (global) {\n  var env = WXInstanceMap['INSTANCE_ID']\n  ;(function (\n    define,\n    require,\n    document,\n    bootstrap,\n    register,\n    render,\n    __weex_define__,\n    __weex_bootstrap__,\n    __weex_document__,\n    __weex_require__,\n    setTimeout,\n    setInterval,\n    clearTimeout,\n    clearInterval\n  ) {\n";
+    NSString *end = @"  })(\n    env.define,\n    env.require,\n    env.document,\n    env.bootstrap,\n    env.register,\n    env.render,\n    env.__weex_define__,\n    env.__weex_bootstrap__,\n    env.__weex_document__,\n    env.__weex_require__,\n    env.setTimeout,\n    env.setInterval,\n    env.clearTimeout,\n    env.clearInterval\n  )\n})(this);\n";
+
+    start = [start stringByReplacingOccurrencesOfString:@"INSTANCE_ID" withString:instance];
+    temp = [start stringByAppendingString:temp];
+    temp = [temp stringByAppendingString:end];
+
     NSArray *args = nil;
     if (data){
-        args = @[instance, temp, options ?: @{}, data];
+        args = @[instance, @"", options ?: @{}, data];
     } else {
-        args = @[instance, temp, options ?: @{}];
+        args = @[instance, @"", options ?: @{}];
     }
     
     WXSDKInstance *sdkInstance = [WXSDKManager instanceForID:instance] ;
     [WXBridgeContext _timeSince:^() {
-        [self callJSMethod:@"createInstance" args:args];
+        [self callJSMethod:@"prepareInstance" args:args];
+        [self.jsBridge executeJSFramework:temp];
         WXLogInfo(@"CreateInstance Finish...%f", -[sdkInstance.renderStartDate timeIntervalSinceNow]);
     } endBlock:^(NSTimeInterval time) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
