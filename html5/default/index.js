@@ -34,6 +34,23 @@ export function init (cfg) {
   config.sendTasks = cfg.sendTasks
 }
 
+export const envVars = [
+  'define',
+  'require',
+  'document',
+  'bootstrap',
+  'register',
+  'render',
+  '__weex_define__',
+  '__weex_bootstrap__',
+  '__weex_document__',
+  '__weex_require__',
+  'setTimeout',
+  'setInterval',
+  'clearTimeout',
+  'clearInterval'
+]
+
 /**
  * Prepare a Weex instance and return the environment.
  *

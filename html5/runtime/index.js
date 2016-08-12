@@ -10,6 +10,7 @@
 // The filename is also the framework name.
 import frameworks from './config'
 
+import { extend } from '../shared'
 import { Document, Element, Comment } from '../vdom'
 
 const config = {
@@ -19,12 +20,24 @@ const config = {
   }
 }
 
+const envVarsCollection = {}
+
 // Init each framework by `init` method and `config` which contains three
 // virtual-DOM Class: `Document`, `Element` & `Comment`, and a JS bridge method:
 // `sendTasks(...args)`.
 for (const name in frameworks) {
   const framework = frameworks[name]
+  if (framework.envVars) {
+    framework.envVars.forEach(key => {
+      envVarsCollection[key] = true
+    })
+  }
   framework.init(config)
+}
+
+// register all possible env variable names for all frameworks to native
+if (typeof global.registerEnvVars === 'function') {
+  global.registerEnvVars(Object.keys(envVarsCollection))
 }
 
 const versionRegExp = /^\/\/ *(\{[^\}]*\}) *\r?\n/
