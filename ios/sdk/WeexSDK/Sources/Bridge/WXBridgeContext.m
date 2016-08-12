@@ -44,11 +44,13 @@ _Pragma("clang diagnostic pop") \
 @property (nonatomic) BOOL frameworkLoadFinished;
 //store some methods temporarily before JSFramework is loaded
 @property (nonatomic, strong) NSMutableArray *methodQueue;
-@property (nonatomic, strong) NSArray *envVars;
 
 @end
 
 @implementation WXBridgeContext
+
+NSString *jsBundleStart;
+NSString *jsBundleEnd;
 
 - (instancetype) init
 {
@@ -104,7 +106,10 @@ _Pragma("clang diagnostic pop") \
         return [weakSelf invokeNative:instance tasks:tasks callback:callback];
     }];
     [_jsBridge bindRegisterEnvVars:^(NSArray* vars) {
-        _envVars = vars;
+        jsBundleStart = [@"(function (global) {\n  var env = WXInstanceMap['INSTANCE_ID']\n  ;(function (PARAMS) {\n"
+                         stringByReplacingOccurrencesOfString:@"PARAMS" withString:[vars componentsJoinedByString:@","]];
+        jsBundleEnd = [@"  })(env.PARAMS)\n})(this);\n"
+                       stringByReplacingOccurrencesOfString:@"PARAMS" withString:[vars componentsJoinedByString:@",env."]];
     }];
 
 
@@ -173,7 +178,7 @@ _Pragma("clang diagnostic pop") \
 }
 
 - (void)createInstance:(NSString *)instance
-              template:(NSString *)temp
+              template:(NSString *)template
                options:(NSDictionary *)options
                   data:(id)data
 {
@@ -192,15 +197,8 @@ _Pragma("clang diagnostic pop") \
     NSMutableArray *sendQueue = [NSMutableArray array];
     [self.sendQueue setValue:sendQueue forKey:instance];
     
-    NSString *start = @"(function (global) {\n  var env = WXInstanceMap['INSTANCE_ID']\n  ;(function (PARAMS) {\n";
-    NSString *end = @"  })(env.PARAMS)\n})(this);\n";
-
-
-    start = [start stringByReplacingOccurrencesOfString:@"INSTANCE_ID" withString:instance];
-    start = [start stringByReplacingOccurrencesOfString:@"PARAMS" withString:[_envVars componentsJoinedByString:@","]];
-    end = [end stringByReplacingOccurrencesOfString:@"PARAMS" withString:[_envVars componentsJoinedByString:@",env."]];
-    temp = [start stringByAppendingString:temp];
-    temp = [temp stringByAppendingString:end];
+    NSString *start = [jsBundleStart stringByReplacingOccurrencesOfString:@"INSTANCE_ID" withString:instance];
+    template = [[start stringByAppendingString:template] stringByAppendingString:jsBundleEnd];
 
     NSArray *args = nil;
     if (data){
@@ -212,7 +210,7 @@ _Pragma("clang diagnostic pop") \
     WXSDKInstance *sdkInstance = [WXSDKManager instanceForID:instance] ;
     [WXBridgeContext _timeSince:^() {
         [self callJSMethod:@"prepareInstance" args:args];
-        [self.jsBridge executeJSFramework:temp];
+        [self.jsBridge executeJSFramework:template];
         WXLogInfo(@"CreateInstance Finish...%f", -[sdkInstance.renderStartDate timeIntervalSinceNow]);
     } endBlock:^(NSTimeInterval time) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
