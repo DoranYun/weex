@@ -44,6 +44,7 @@ _Pragma("clang diagnostic pop") \
 @property (nonatomic) BOOL frameworkLoadFinished;
 //store some methods temporarily before JSFramework is loaded
 @property (nonatomic, strong) NSMutableArray *methodQueue;
+@property (nonatomic, strong) NSArray *envVars;
 
 @end
 
@@ -102,7 +103,11 @@ _Pragma("clang diagnostic pop") \
     [_jsBridge registerCallNative:^NSInteger(NSString *instance, NSArray *tasks, NSString *callback) {
         return [weakSelf invokeNative:instance tasks:tasks callback:callback];
     }];
-    
+    [_jsBridge bindRegisterEnvVars:^(NSArray* vars) {
+        _envVars = vars;
+    }];
+
+
     return _jsBridge;
 }
 
@@ -187,10 +192,13 @@ _Pragma("clang diagnostic pop") \
     NSMutableArray *sendQueue = [NSMutableArray array];
     [self.sendQueue setValue:sendQueue forKey:instance];
     
-    NSString *start = @"(function (global) {\n  var env = WXInstanceMap['INSTANCE_ID']\n  ;(function (\n    define,\n    require,\n    document,\n    bootstrap,\n    register,\n    render,\n    __weex_define__,\n    __weex_bootstrap__,\n    __weex_document__,\n    __weex_require__,\n    setTimeout,\n    setInterval,\n    clearTimeout,\n    clearInterval\n  ) {\n";
-    NSString *end = @"  })(\n    env.define,\n    env.require,\n    env.document,\n    env.bootstrap,\n    env.register,\n    env.render,\n    env.__weex_define__,\n    env.__weex_bootstrap__,\n    env.__weex_document__,\n    env.__weex_require__,\n    env.setTimeout,\n    env.setInterval,\n    env.clearTimeout,\n    env.clearInterval\n  )\n})(this);\n";
+    NSString *start = @"(function (global) {\n  var env = WXInstanceMap['INSTANCE_ID']\n  ;(function (PARAMS) {\n";
+    NSString *end = @"  })(env.PARAMS)\n})(this);\n";
+
 
     start = [start stringByReplacingOccurrencesOfString:@"INSTANCE_ID" withString:instance];
+    start = [start stringByReplacingOccurrencesOfString:@"PARAMS" withString:[_envVars componentsJoinedByString:@","]];
+    end = [end stringByReplacingOccurrencesOfString:@"PARAMS" withString:[_envVars componentsJoinedByString:@",env."]];
     temp = [start stringByAppendingString:temp];
     temp = [temp stringByAppendingString:end];
 

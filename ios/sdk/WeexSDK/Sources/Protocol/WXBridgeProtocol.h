@@ -10,6 +10,8 @@
 
 typedef NSInteger (^WXJSCallNative)(NSString *instance, NSArray *tasks, NSString *callback);
 
+typedef void (^WXJSRegisterEnvVars)(NSArray *envVars);
+
 @protocol WXBridgeProtocol <NSObject>
 
 @property (nonatomic, readonly) JSValue* exception;
@@ -19,6 +21,8 @@ typedef NSInteger (^WXJSCallNative)(NSString *instance, NSArray *tasks, NSString
 - (void)callJSMethod:(NSString *)method args:(NSArray*)args;
 
 - (void)registerCallNative:(WXJSCallNative)callNative;
+
+- (void)bindRegisterEnvVars:(WXJSRegisterEnvVars)registerEnvVars;
 
 - (void)resetEnvironment;
 
