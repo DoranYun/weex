@@ -24,7 +24,7 @@ version: 2.1
 
 ~~这个API也能通过调用VM的方法 `$scrollTo` 来使用（已弃用）~~
 
-要在你的 `.we` 文件中使用这个 API，可以使用 `require('@weex-module/dom').scrollToElement`。
+要在你的 `.we` 文件中使用这个 API，可以使用 `require('@weex-module/dom').scrollToElement`。而 Vue 2.0 版本中，使用 `weex.requireModule('dom').scrollToElement`。
 
 #### 参数
 - `node {Node}`：你要滚动到的那个节点

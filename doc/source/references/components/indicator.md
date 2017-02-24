@@ -15,10 +15,6 @@ This component must be used as a subcomponent of a [`slider`](./slider.html) com
 
 This component supports no child components.
 
-### Attributes
-
-There is no specific attribute for this component other than the [common attributes](../common-attrs.html).
-
 ### Styles
 
 - `item-color`: &lt;colors&gt; This style attribute sets the normal item color using either a named color or a color specified in the hexadecimal #RRGGBB format.

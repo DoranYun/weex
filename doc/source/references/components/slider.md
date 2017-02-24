@@ -21,8 +21,6 @@ It supports all kinds of weex components as its slides, especially the `indicato
 - `interval`: &lt;number&gt; millisecond. This value determines time interval for each page displayed in slider.
 - `index`: &lt;number&gt; . This value determines the  index of current shown slide. The default value is `0`.
 
-Other attributes please check out the [common attributes](../references/common-attrs.html).
-
 ## Styles
 
 **common styles**: check out [common styles for components](../references/common-style.html)

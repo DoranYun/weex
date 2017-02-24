@@ -17,10 +17,6 @@ alias: `<container>` (deprecated)
 
 This type of component supports all kinds of weex component as its child components including its own kind.
 
-### Attributes
-
-There is no specific attribute for this component other than the [common attributes](../common-attrs.html).
-
 ### Styles
 
 **common styles**: check out the [common styles](../common-attrs.html)
